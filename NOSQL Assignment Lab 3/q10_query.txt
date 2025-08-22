@@ -1,0 +1,40 @@
+console.log(JSON.stringify(
+ 
+    db.sales.aggregate([
+
+        // Extract items to work item-by-item
+        { 
+            $unwind: "$items" 
+        },
+
+        // Group by item name and sum up revenue
+        {
+            $group: {
+                _id: "$items.name",
+                revenue: {
+                    $sum: { $multiply: ["$items.price", "$items.quantity"] }
+                }
+            }
+        },
+
+        // Project into required shape and convert revenue to JSON number
+        {
+            $project: {
+                _id: 0,
+                name: "$_id",
+                revenue: { $toDouble: "$revenue" }
+            }
+        },
+
+        // Sort by revenue descending, then by name ascending
+        {
+            $sort: { revenue: -1, name: 1 }
+        },
+
+        // Limit to top 10
+        { 
+            $limit: 10 
+        }
+    ]).toArray()
+
+));

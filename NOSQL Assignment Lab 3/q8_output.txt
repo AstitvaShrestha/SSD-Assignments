@@ -1,13 +1,1 @@
-{
-  tags: [
-    'electronics',
-    'general',
-    'kids',
-    'office',
-    'organization',
-    'school',
-    'stationary',
-    'travel',
-    'writing'
-  ]
-}
+[{"tags":["electronics","general","kids","office","organization","school","stationary","travel","writing"]}]

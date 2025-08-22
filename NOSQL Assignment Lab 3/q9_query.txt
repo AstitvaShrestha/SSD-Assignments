@@ -1,0 +1,40 @@
+console.log(JSON.stringify(
+
+    db.sales.aggregate([
+
+
+        // Filter orders since 2015 and only those with customer.satisfaction
+        {
+            $match: {
+                saleDate: {$gte: ISODate("2015-01-01")},
+                "customer.satisfaction": {$exists: true}
+            }
+        },
+
+        // Group by purchaseMethod and compute average and count
+        {
+            $group: {
+                _id: "$purchaseMethod",
+                avg_satisfaction: {$avg: "$customer.satisfaction"},
+                n: {$sum: 1}
+            }
+        },
+
+        // Project fields rounding of avg_satisfaction to 2 decimals
+        {
+            $project: {
+                _id: 0,
+                purchaseMethod: "$_id",
+                avg_satisfaction: {$round: ["$avg_satisfaction", 2]},
+                n: 1
+            }
+        },
+
+        // Sort by avg_satisfaction in descending order, then purchaseMethod in ascending order
+        {
+            $sort: {avg_satisfaction: -1, purchaseMethod: 1}
+        }
+
+    ]).toArray()
+
+));

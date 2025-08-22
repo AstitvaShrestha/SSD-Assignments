@@ -1,7 +1,11 @@
-db.sales_work.updateOne(
-    { orderId: "LAB_2025201001" },       // Filter: your training order
-    {
-        $inc: { "items.0.quantity": 2 },      // Increment first item's quantity by 2
-        $set: { "customer.satisfaction": 5 }  // Set satisfaction to 5
-    }
-);
+console.log(JSON.stringify(
+
+    db.sales_work.updateOne(
+        { orderId: "LAB_2025201001" },       // Filter: your training order
+        {
+            $inc: { "items.0.quantity": 2 },      // Increment first item's quantity by 2
+            $set: { "customer.satisfaction": 5 }  // Set satisfaction to 5
+        }
+    )
+
+));

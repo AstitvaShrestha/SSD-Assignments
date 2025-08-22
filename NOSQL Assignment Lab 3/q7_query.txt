@@ -1,35 +1,40 @@
-db.sales.aggregate([
-  
-   // For each order, compute number of distinct item names
-    {
-        $project: {
-        purchaseMethod: 1,
-        distinctItemCount: { 
-            $size: { $setUnion: ["$items.name", []] } 
+console.log(JSON.stringify(
+
+    db.sales.aggregate([
+    
+    // For each order, compute number of distinct item names
+        {
+            $project: {
+            purchaseMethod: 1,
+            distinctItemCount: { 
+                $size: { $setUnion: ["$items.name", []] } 
+                }
             }
+        },
+
+
+        // Group by purchaseMethod and average distinct counts
+        {
+            $group: {
+            _id: "$purchaseMethod",
+            avg_distinct_items: { $avg: "$distinctItemCount" }
+            }
+        },
+
+        // Project rounding of to 2 decimal places
+        {
+            $project: {
+            _id: 0,
+            purchaseMethod: "$_id",
+            avg_distinct_items: { $round: ["$avg_distinct_items", 2] }
+            }
+        },
+
+        // Sort by avg_distinct_items in descending order, then purchaseMethod in ascending order
+        {
+            $sort: { avg_distinct_items: -1, purchaseMethod: 1 }
         }
-    },
 
+    ]).toArray()
 
-    // Group by purchaseMethod and average distinct counts
-    {
-        $group: {
-        _id: "$purchaseMethod",
-        avg_distinct_items: { $avg: "$distinctItemCount" }
-        }
-    },
-
-    // Project rounding of to 2 decimal places
-    {
-        $project: {
-        _id: 0,
-        purchaseMethod: "$_id",
-        avg_distinct_items: { $round: ["$avg_distinct_items", 2] }
-        }
-    },
-
-    // Sort by avg_distinct_items in descending order, then purchaseMethod in ascending order
-    {
-        $sort: { avg_distinct_items: -1, purchaseMethod: 1 }
-    }
-]).toArray();
+));

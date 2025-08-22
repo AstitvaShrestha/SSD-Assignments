@@ -1,31 +1,35 @@
-db.sales.aggregate([
+console.log(JSON.stringify(
 
-    // Extract from items array
-    {
-        $unwind: "$items"
-    },
+    db.sales.aggregate([
 
-    // Extract tags array inside each item
-    {
-        $unwind: "$items.tags"
-    },
+        // Extract from items array
+        {
+            $unwind: "$items"
+        },
 
-    // Group all unique tags into a set
-    {
-        $group: {
-            _id: null,
-            allTags: {$addToSet: "$items.tags"}
-        }
-    },
+        // Extract tags array inside each item
+        {
+            $unwind: "$items.tags"
+        },
 
-    // Sort the array of tags in ascending order
-    {
-        $project: {
-            _id: 0,
-            tags: {
-                $sortArray: { input: "$allTags", sortBy: 1}
+        // Group all unique tags into a set
+        {
+            $group: {
+                _id: null,
+                allTags: {$addToSet: "$items.tags"}
+            }
+        },
+
+        // Sort the array of tags in ascending order
+        {
+            $project: {
+                _id: 0,
+                tags: {
+                    $sortArray: { input: "$allTags", sortBy: 1}
+                }
             }
         }
-    }
 
-]).toArray();
+    ]).toArray()
+
+));

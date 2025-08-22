@@ -1,3 +1,5 @@
+console.log(JSON.stringify(
+
 db.sales.aggregate([
 
     // Only orders in 2015
@@ -53,4 +55,6 @@ db.sales.aggregate([
         $sort: { month: 1 }
     }
 
-]).toArray();
+]).toArray()
+
+));
