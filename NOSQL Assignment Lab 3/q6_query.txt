@@ -1,0 +1,56 @@
+db.sales.aggregate([
+
+    // Only orders in 2015
+    {
+        $match: {
+            saleDate: {
+                $gte: ISODate("2015-01-01"),
+                $lt: ISODate("2016-01-01")
+            }
+        }
+    },
+
+    // Extract "YYYY-MM"
+    {
+        $addFields: {
+            month: {
+                $dateToString: { format: "%Y-%m", date: "$saleDate" }
+            }
+        }
+    },
+
+    // Expand items
+    {
+        $unwind: "$items"
+    },
+
+    // Group by month and calculate revenue
+    {
+        $group: {
+            _id: "$month",
+            revenue: {
+                $sum: {
+                    $multiply: [
+                        { $toDouble: "$items.price" },
+                        { $toInt: "$items.quantity" }
+                    ]
+                }
+            }
+        }
+    },
+
+    // Reshape result
+    {
+        $project: {
+            _id: 0,
+            month: "$_id",
+            revenue: { $toDouble: "$revenue" }
+        }
+    },
+
+    // Sort months in ascending order
+    {
+        $sort: { month: 1 }
+    }
+
+]).toArray();

@@ -1,0 +1,3 @@
+// Deleting inserted record based on orderid
+
+db.sales_work.deleteOne({orderId: "LAB_2025201001"});

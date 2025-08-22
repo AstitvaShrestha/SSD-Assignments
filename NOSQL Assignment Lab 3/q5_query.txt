@@ -1,0 +1,27 @@
+db.sales.aggregate([
+
+	// Unwind items array so each item is a separate document
+	{$unwind: "$items"},
+	
+    // Group by storeLocation and compute total revenue
+	{$group: {
+		_id: "$storeLocation",
+		revenue:{
+			$sum: {$multiply: ["$items.price", "$items.quantity"] }
+        }
+
+    }},
+
+    // Project fields and convert revenue to a number
+    {$project: {
+        _id: 0,
+        storeLocation: "$_id",
+        revenue: {$toDouble: "$revenue"}
+    }},
+
+    // Sort by revenue descending, then storeLocation ascendi
+    {$sort: {revenue: -1, storeLocation: 1}},
+
+    // Limit the number of records displayed to top 5
+    {$limit: 5}
+]).toArray();
