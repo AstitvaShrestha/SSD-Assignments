@@ -1,6 +1,0 @@
-// inserting one record in sales_work
-
-db.sales_work.insertOne({orderID: 'LAB_2025201001', salesDate: ISODate(), 
-    items: [{name: 'chips', tags:['lab','custom'], price: 10.0, 
-	quantity: 1}], 	storeLocation: "Training", customer: {email: 'astitva.shrestha@students.iiit.ac.in' , age: 25, satisfaction: 4}, 
-	couponUsed: false, purchaseMethod: "Online"});
