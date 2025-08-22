@@ -1,0 +1,6 @@
+{
+  orderId: 'LAB_2025201001',
+  storeLocation: 'Training',
+  purchaseMethod: 'Online',
+  item0: 'chips'
+}

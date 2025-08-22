@@ -1,0 +1,31 @@
+db.sales.aggregate([
+
+    // Extract from items array
+    {
+        $unwind: "$items"
+    },
+
+    // Extract tags array inside each item
+    {
+        $unwind: "$items.tags"
+    },
+
+    // Group all unique tags into a set
+    {
+        $group: {
+            _id: null,
+            allTags: {$addToSet: "$items.tags"}
+        }
+    },
+
+    // Sort the array of tags in ascending order
+    {
+        $project: {
+            _id: 0,
+            tags: {
+                $sortArray: { input: "$allTags", sortBy: 1}
+            }
+        }
+    }
+
+]).toArray();
