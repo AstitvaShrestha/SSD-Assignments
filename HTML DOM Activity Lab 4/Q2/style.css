@@ -1,0 +1,25 @@
+/* Reset default spacing for the whole page */
+body {
+    margin: 0;   /* remove default margin around body */
+    padding: 0;  /* remove default padding */
+}
+
+/* Style the input field */
+#task-input {
+    height: 40px;              /* set fixed height */
+    font-size: 16px;           /* match button text size */
+    padding: 0 10px;           /* left/right spacing inside */
+    box-sizing: border-box;    /* includes padding inside the height */
+}
+
+/* Style the add-task button */
+#add-task-btn {
+    height: 40px;              /* same as input height */
+    padding: 0 16px;           /* horizontal padding only */
+    border: none;              /* Removes the default button border */
+    border-radius: 8px;        /* Rounds the corners by 8px */
+    color: white;              /* White text */
+    font-size: 16px;           /* Same font size as input */
+    cursor: pointer;           /* Hand cursor on hover */
+    background-color: #0078d7; /* Blue background */
+}
