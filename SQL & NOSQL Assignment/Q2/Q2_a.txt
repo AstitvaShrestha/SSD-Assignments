@@ -1,0 +1,81 @@
+// Main query with date range filter
+db.temperature.aggregate([
+
+  // Filter for Jan-Jun 2025
+  {
+    $match: {
+      date: {
+        $gte: "2025-01-01",
+        $lte: "2025-06-30"
+      }
+    }
+  },
+
+  // Extract month from date
+  {
+    $addFields: {
+      month: {
+        $month: {
+          $dateFromString: {
+            dateString: "$date"
+          }
+        }
+      }
+    }
+  },
+
+  // Combined queries of daily and monthly average temperatures and overall city stats */
+  {
+    $facet: {
+      
+      // Daily average temperatures
+      daily_avg: [
+        {
+          $group: {
+            _id: {
+              city: "$city",
+              month: "$month",
+              date: "$date"
+            },
+            daily_avg_temp: { $avg: "$temp.avg_c" }
+          }
+        },
+        { $sort: { "_id.city": 1, "_id.month": 1, "_id.date": 1 } }
+      ],
+      
+      // Monthly average temperatures
+      monthly_avg: [
+        {
+          $group: {
+            _id: {
+              city: "$city",
+              month: "$month"
+            },
+            monthly_avg_temp: { $avg: "$temp.avg_c" }
+          }
+        },
+        { $sort: { "_id.city": 1, "_id.month": 1 } }
+      ],
+      
+      // Overall city stats (for hottest/coldest)
+      city_stats: [
+        {
+          $group: {
+            _id: "$city",
+            overall_avg: { $avg: "$temp.avg_c" }
+          }
+        }
+      ]
+    }
+  },
+  
+  // Process the results
+  {
+    $project: {
+      daily_avg: 1,
+      monthly_avg: 1,
+      hottest: { $arrayElemAt: [{ $sortArray: { input: "$city_stats", sortBy: { overall_avg: -1 } } }, 0] },
+      coldest: { $arrayElemAt: [{ $sortArray: { input: "$city_stats", sortBy: { overall_avg: 1 } } }, 0] }
+    }
+  }
+]);

@@ -1,4 +1,5 @@
-create database masters;
+/* created database to store exam data */
+create database masters; 
 use masters;
 
 create table if not exists time_travel (
@@ -20,5 +21,4 @@ create table if not exists time_travel (
 
 show tables;
 
-select * from time_travel limit 100;
 

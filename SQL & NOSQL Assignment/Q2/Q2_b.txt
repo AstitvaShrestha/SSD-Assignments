@@ -1,0 +1,129 @@
+db.temperature.aggregate([
+  // Convert date string to actual Date object
+  {
+      $addFields: {
+      dateObj: { $dateFromString: { dateString: "$date" } }
+      }
+  },
+  {
+      $match: {
+      date: { $gte: "2025-01-01", $lte: "2025-06-30" }
+      }
+  },
+  {
+      $facet: {
+      // Top 5 hottest days (nationwide, by max temp)
+      hottest_days: [
+          { $sort: { "temp.max_c": -1 } },
+          { $limit: 5 },
+          {
+          $project: {
+              _id: 0,
+              city: 1,
+              date: 1,
+              max_temp: "$temp.max_c"
+          }
+          }
+      ],
+
+      // Top 5 coldest days (nationwide, by min temp)
+      coldest_days: [
+          { $sort: { "temp.min_c": 1 } },
+          { $limit: 5 },
+          {
+          $project: {
+              _id: 0,
+              city: 1,
+              date: 1,
+              min_temp: "$temp.min_c"
+          }
+          }
+      ],
+
+      // Compare City’s temperature + weather → is it raining?
+      raining_check: [
+        { $sort: { dateObj: 1 } },
+        {
+          $lookup: {
+            from: "weather",
+            let: { city: "$city", date: "$date" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$city", "$$city"] },
+                      { $eq: ["$date", "$$date"] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: "weather"
+          }
+        },
+        { $unwind: { path: "$weather", preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            _id: 0,
+            city: 1,
+            date: 1,
+            avg_temp: "$temp.avg_c",
+            condition: "$weather.condition",
+            precipitation: { $ifNull: ["$weather.precip_mm", 0] },
+
+            // creates a flag to check if it is raining
+            is_raining: {
+              $cond: [
+                { $ifNull: ["$weather", false] },
+                {
+                  $or: [
+                    { $gt: ["$weather.precip_mm", 0] },
+                    { $in: ["$weather.condition", ["Rain", "Thunderstorm", "Drizzle"]] }
+                  ]
+                },
+                false
+              ]
+            }
+          }
+        },
+        { $limit: 20 }
+      ],
+
+        // 7-day moving average for one given city (say Mumbai)
+        city_trend: [
+          { $match: { city: "Mumbai" } },
+          { $sort: { dateObj: 1 } },
+          {
+              /*  setWindowFields to calculate 7-day moving average */
+              $setWindowFields: {
+                  partitionBy: "$city",
+                  sortBy: { dateObj: 1 },
+                  output: {
+                      moving_avg_7day: {
+                          $avg: "$temp.avg_c",
+                          window: { range: [-6, "current"], unit: "day" }
+                      },
+                      window_start: {  // Add window start date
+                          $min: "$date",
+                          window: { range: [-6, "current"], unit: "day" }
+                      }
+                  }
+              }
+          },
+          {
+              /*  project to show the final output */
+              $project: {
+                  _id: 0,
+                  city: 1,
+                  date: 1,
+                  avg_temp: "$temp.avg_c",
+                  moving_avg_7day: 1,
+                  period_start: "$window_start",  // Show the start of the 7-day window
+                  period_end: "$date"            // End of the 7-day window
+              }
+          }
+        ]
+      }
+  }
+]);

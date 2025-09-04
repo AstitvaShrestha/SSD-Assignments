@@ -1,5 +1,7 @@
 Assignment_1.pdf
 Doubts.txt
 *.csv#
-*.ods
+*.csv
 *.ods#
+*.jsonl
+
