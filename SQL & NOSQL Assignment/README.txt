@@ -6,7 +6,7 @@ DESCRIPTION:
 ----------------------------------
 This project contains SQL queries and MongoDB aggregation pipelines for analyzing student performance data and weather/temperature data.
 
-Github Private Repo Link: <>
+Github Private Repo Link: https://github.com/AstitvaShrestha/SSD-Assignments/tree/main/SQL%20%26%20NOSQL%20Assignment
 
 DATABASE DETAILS:
 ----------------------------------
@@ -25,7 +25,7 @@ REQUIREMENTS:
 SETUP INSTRUCTIONS:
 ----------------------------------
 1. For SQL Queries (Q1):
-   - Import the provided database schema and data
+   - Import the provided database schema and data (you can use 'create.sql' to setup database and table schema)
    - Run the SQL files in MySQL Workbench or command line:
      - Q1_a.sql: Student performance analysis
      - Q1_b.sql: Pass rate analysis by dimensions
@@ -60,6 +60,7 @@ NoSQL Queries (Q2):
    b. Advanced Weather Analytics:
       - Identifies hottest/coldest days nationwide
       - Checks for rainy conditions (query limits output to 20 because of memory issues in MongoDB 100MB only supported on local machine)
+         - Joins temperature collection to get temperature of a city on a particular date
       - Calculates 7-day moving averages for temperature trends (computes for only one city (e.g.- Mumbai) as given in the question)
 
 USAGE EXAMPLES:
@@ -81,8 +82,8 @@ CALL getStudentPerformance('S202500001');
 NOTES:
 ----------------------------------
 - All SQL queries are compatible with MySQL 8.0+
-- MongoDB queries use the aggregation framework and require MongoDB 4.2+
-- Date ranges in the queries are set for the first half of 2025
+- MongoDB queries use the aggregation framework and require MongoDB 5.0+
+- Date ranges in the queries are for the first half of 2025
 - The 'Mumbai' filter in Q2_b can be modified to analyze other cities
 
 AUTHOR:
